@@ -10,7 +10,8 @@ export default function SyncBadge({ id }) {
 
   if (status === 'syncing') return (
     <span className="inline-flex items-center gap-1 text-[10px] font-semibold bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded-full">
-      <Loader size={9} className="animate-spin" />
+      {/* 0.5s spin — faster spinner = app feels faster (perceived performance) */}
+      <Loader size={9} className="animate-spin" style={{ animationDuration: '0.5s' }} />
       Syncing…
     </span>
   )

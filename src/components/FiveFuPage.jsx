@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Search, X, Plus, Printer, Calendar, Syringe,
   Users, Edit2, Trash2, CalendarDays, ChevronDown, ChevronUp,
@@ -23,18 +23,38 @@ function formatDateLong(dateStr) {
   }
 }
 
+// Animates a number from 0 → target on mount with an ease-out cubic curve.
+function useCountUp(target, duration = 500) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    if (target === 0) { setCount(0); return }
+    let startTime = null
+    let raf
+    const step = (ts) => {
+      if (!startTime) startTime = ts
+      const progress = Math.min((ts - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.round(target * eased))
+      if (progress < 1) raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [target, duration])
+  return count
+}
+
 export default function FiveFuPage() {
   const { state, dispatch } = useApp()
   const patients = state.fiveFuPatients || []
 
-  const [search, setSearch] = useState('')
-  const [filterDate, setFilterDate] = useState('')
-  const [filterFrom, setFilterFrom] = useState('')
-  const [filterTo, setFilterTo] = useState('')
+  const [search,      setSearch]      = useState('')
+  const [filterDate,  setFilterDate]  = useState('')
+  const [filterFrom,  setFilterFrom]  = useState('')
+  const [filterTo,    setFilterTo]    = useState('')
   const [showMobileCal, setShowMobileCal] = useState(false)
 
   const setFilterDateOnly = (val) => { setFilterDate(val); setFilterFrom(''); setFilterTo('') }
-  const setFilterRange = (from, to) => { setFilterDate(''); setFilterFrom(from); setFilterTo(to) }
+  const setFilterRange    = (from, to) => { setFilterDate(''); setFilterFrom(from); setFilterTo(to) }
 
   const hasActiveFilters = search || filterDate || filterFrom || filterTo
 
@@ -57,7 +77,7 @@ export default function FiveFuPage() {
       result = result.filter(p => p.appointmentDate === filterDate)
     } else {
       if (filterFrom) result = result.filter(p => p.appointmentDate >= filterFrom)
-      if (filterTo) result = result.filter(p => p.appointmentDate <= filterTo)
+      if (filterTo)   result = result.filter(p => p.appointmentDate <= filterTo)
     }
 
     result.sort((a, b) => {
@@ -93,7 +113,6 @@ export default function FiveFuPage() {
     printFiveFuDay(todayPts, TODAY)
   }
 
-  // ── Print title for button label ─────────────────────────────────────────
   const printLabel = filterDate
     ? `Print Day (${filtered.length})`
     : (filterFrom || filterTo)
@@ -104,10 +123,10 @@ export default function FiveFuPage() {
     <div className="space-y-6 animate-fade-in">
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard label="Total Patients" value={patients.length} color="teal" icon={<Users size={17} />} />
-        <StatCard label="Today" value={todayCount} color="indigo" icon={<CalendarDays size={17} />} />
-        <StatCard label="Filtered" value={filtered.length} color="slate" icon={<Search size={17} />} />
-        <StatCard label="Date Groups" value={grouped.length} color="purple" icon={<Calendar size={17} />} />
+        <StatCard label="Total Patients" value={patients.length}  color="teal"   icon={<Users        size={17} />} />
+        <StatCard label="Today"          value={todayCount}       color="indigo" icon={<CalendarDays size={17} />} />
+        <StatCard label="Filtered"       value={filtered.length}  color="slate"  icon={<Search       size={17} />} />
+        <StatCard label="Date Groups"    value={grouped.length}   color="purple" icon={<Calendar     size={17} />} />
       </div>
 
       {/* Toolbar card */}
@@ -125,6 +144,7 @@ export default function FiveFuPage() {
             {search && (
               <button
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                style={{ transition: 'color 120ms ease-out' }}
                 onClick={() => setSearch('')}
               >
                 <X size={13} />
@@ -134,7 +154,6 @@ export default function FiveFuPage() {
 
           {/* Date filters */}
           <div className="flex flex-wrap gap-2 items-center">
-            {/* Single day */}
             <div className="flex items-center gap-1.5">
               <label className="text-xs text-slate-500 font-medium shrink-0">Day:</label>
               <input
@@ -148,7 +167,6 @@ export default function FiveFuPage() {
 
             <span className="text-slate-300 text-sm hidden sm:block">|</span>
 
-            {/* Date range */}
             <div className="flex items-center gap-1.5">
               <label className="text-xs text-slate-500 font-medium shrink-0">From:</label>
               <input
@@ -171,14 +189,14 @@ export default function FiveFuPage() {
 
           {/* Actions */}
           <div className="flex gap-2 shrink-0">
-            {/* Mobile-only calendar toggle */}
             <button
               onClick={() => setShowMobileCal(c => !c)}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border transition-all duration-150 shadow-sm hover:shadow-md active:scale-95 lg:hidden ${
+              className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border shadow-sm lg:hidden ${
                 showMobileCal
-                  ? 'bg-teal-50 border-teal-200 text-teal-700 hover:bg-teal-100'
-                  : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-teal-50 border-teal-200 text-teal-700'
+                  : 'bg-white border-slate-200 text-slate-700'
               }`}
+              style={{ transition: 'background-color 150ms ease-out, border-color 150ms ease-out, transform 160ms ease-out' }}
               title="Toggle appointment calendar"
             >
               <CalendarDays size={14} />
@@ -191,19 +209,11 @@ export default function FiveFuPage() {
                 <span className="hidden sm:inline">Clear</span>
               </button>
             )}
-            <button
-              className="btn-secondary"
-              onClick={handlePrintToday}
-              title="Print today's 5-FU patients"
-            >
+            <button className="btn-secondary" onClick={handlePrintToday} title="Print today's 5-FU patients">
               <Printer size={14} />
               <span className="hidden sm:inline">Today ({todayCount})</span>
             </button>
-            <button
-              className="btn-secondary"
-              onClick={handlePrint}
-              title="Print the current filtered list"
-            >
+            <button className="btn-secondary" onClick={handlePrint} title="Print the current filtered list">
               <Printer size={14} />
               <span className="hidden sm:inline">{printLabel}</span>
             </button>
@@ -225,7 +235,6 @@ export default function FiveFuPage() {
       <div className="flex gap-5 items-start">
         {/* ── Main content ──────────────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-4">
-          {/* Mobile calendar panel (toggled by toolbar button) */}
           {showMobileCal && (
             <div className="lg:hidden">
               <FiveFuCalendarSidebar
@@ -291,18 +300,16 @@ export default function FiveFuPage() {
 function DateGroup({ date, patients, onPrintDay }) {
   const [collapsed, setCollapsed] = useState(false)
   const isToday = date === TODAY
-  const isPast = date < TODAY && date !== '—'
+  const isPast  = date < TODAY && date !== '—'
 
   return (
     <div className="card overflow-hidden animate-fade-in">
       {/* Group header */}
       <div
         className={`px-5 py-3.5 flex items-center justify-between border-b cursor-pointer select-none ${
-          isToday
-            ? 'bg-teal-600 border-teal-700'
-            : isPast
-              ? 'bg-slate-700 border-slate-800'
-              : 'bg-slate-800 border-slate-900'
+          isToday ? 'bg-teal-600 border-teal-700'
+          : isPast ? 'bg-slate-700 border-slate-800'
+          : 'bg-slate-800 border-slate-900'
         }`}
         onClick={() => setCollapsed(c => !c)}
       >
@@ -324,7 +331,8 @@ function DateGroup({ date, patients, onPrintDay }) {
             {patients.length} patient{patients.length !== 1 ? 's' : ''}
           </span>
           <button
-            className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/10"
+            style={{ transition: 'color 120ms ease-out, background-color 120ms ease-out' }}
             onClick={e => { e.stopPropagation(); onPrintDay() }}
             title="Print this day's patients"
           >
@@ -336,28 +344,36 @@ function DateGroup({ date, patients, onPrintDay }) {
         </div>
       </div>
 
-      {/* Table */}
-      {!collapsed && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide w-10">#</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Patient Name</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">File #</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Protocol</th>
-                <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">5-FU Dose</th>
-                <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide w-24">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patients.map((p, idx) => (
-                <PatientRow key={p.id} patient={p} index={idx + 1} />
-              ))}
-            </tbody>
-          </table>
+      {/* Animated collapse using CSS grid trick — no JS height measurement needed */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: collapsed ? '0fr' : '1fr',
+          transition: 'grid-template-rows 250ms cubic-bezier(0.23,1,0.32,1)',
+        }}
+      >
+        <div style={{ overflow: 'hidden' }}>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide w-10">#</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Patient Name</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">File #</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Protocol</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">5-FU Dose</th>
+                  <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide w-24">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {patients.map((p, idx) => (
+                  <PatientRow key={p.id} patient={p} index={idx + 1} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }
@@ -367,7 +383,7 @@ function PatientRow({ patient, index }) {
   const { dispatch } = useApp()
 
   return (
-    <tr className="group border-b border-slate-50 last:border-0 hover:bg-teal-50/40 transition-colors duration-100">
+    <tr className="group border-b border-slate-50 last:border-0 hover:bg-teal-50/40" style={{ transition: 'background-color 100ms ease-out' }}>
       <td className="px-4 py-3 text-slate-400 text-xs font-semibold tabular-nums">{index}</td>
 
       <td className="px-4 py-3">
@@ -399,16 +415,20 @@ function PatientRow({ patient, index }) {
       </td>
 
       <td className="px-4 py-3">
-        <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+          style={{ transition: 'opacity 150ms ease-out' }}
+        >
           <button
-            className="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-50"
+            style={{ transition: 'color 120ms ease-out, background-color 120ms ease-out' }}
             title="Edit patient"
             onClick={() => dispatch({ type: 'OPEN_MODAL', modalType: 'editFiveFuPatient', data: patient })}
           >
             <Edit2 size={14} />
           </button>
           <button
-            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+            style={{ transition: 'color 120ms ease-out, background-color 120ms ease-out' }}
             title="Delete patient"
             onClick={() => dispatch({ type: 'OPEN_MODAL', modalType: 'deleteFiveFuPatient', data: patient })}
           >
@@ -420,18 +440,20 @@ function PatientRow({ patient, index }) {
   )
 }
 
-// ── Stat card (local, consistent with Dashboard) ──────────────────────────────
+// ── Stat card ─────────────────────────────────────────────────────────────────
 function StatCard({ label, value, color, icon }) {
+  const displayed = useCountUp(value)
+
   const colors = {
-    teal: 'bg-teal-50 border-teal-100 text-teal-600',
+    teal:   'bg-teal-50 border-teal-100 text-teal-600',
     indigo: 'bg-indigo-50 border-indigo-100 text-indigo-600',
-    slate: 'bg-slate-50 border-slate-100 text-slate-600',
+    slate:  'bg-slate-50 border-slate-100 text-slate-600',
     purple: 'bg-purple-50 border-purple-100 text-purple-600',
   }
   const valColors = {
-    teal: 'text-teal-700',
+    teal:   'text-teal-700',
     indigo: 'text-indigo-700',
-    slate: 'text-slate-700',
+    slate:  'text-slate-700',
     purple: 'text-purple-700',
   }
   return (
@@ -440,7 +462,7 @@ function StatCard({ label, value, color, icon }) {
         <span className="text-xs font-medium opacity-70">{label}</span>
         {icon}
       </div>
-      <p className={`text-3xl font-bold ${valColors[color]}`}>{value}</p>
+      <p className={`text-3xl font-bold tabular-nums ${valColors[color]}`}>{displayed}</p>
     </div>
   )
 }
