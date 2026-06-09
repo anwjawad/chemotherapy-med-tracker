@@ -33,6 +33,7 @@ jobs:
       - run: npm run build
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
+          VITE_GAS_URL: ${{ secrets.VITE_GAS_URL }}
 
       - uses: actions/configure-pages@v4
 
