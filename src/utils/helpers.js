@@ -112,3 +112,10 @@ export function applyPatientFilters(patients, filters) {
 export function now() {
   return new Date().toISOString()
 }
+
+export function normalizeDateStr(val) {
+  if (!val || /^\d{4}-\d{2}-\d{2}$/.test(val)) return val || ''
+  const d = new Date(val)
+  if (isNaN(d.getTime())) return val
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}

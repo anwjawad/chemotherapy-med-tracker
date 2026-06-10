@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useCallback } from 'react'
 import * as api from '../utils/api'
-import { generateId, determineStatus, now } from '../utils/helpers'
+import { generateId, determineStatus, now, normalizeDateStr } from '../utils/helpers'
 import { buildSeedMedications } from '../utils/seed'
 
 const AppContext = createContext(null)
@@ -124,8 +124,15 @@ export function AppProvider({ children }) {
         api.listFiveFuPatients().catch(() => []), // graceful: sheet may not exist yet on GAS
       ])
       medications = medications || []
-      patients = patients || []
-      fiveFuPatients = fiveFuPatients || []
+      patients = (patients || []).map(p => ({
+        ...p,
+        lastAppointment: normalizeDateStr(p.lastAppointment),
+        nextAppointment: normalizeDateStr(p.nextAppointment),
+      }))
+      fiveFuPatients = (fiveFuPatients || []).map(p => ({
+        ...p,
+        appointmentDate: normalizeDateStr(p.appointmentDate),
+      }))
 
       // Seed default medications on first ever load (empty store)
       if (medications.length === 0) {
