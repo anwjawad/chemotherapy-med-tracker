@@ -9,6 +9,7 @@ import Toast from './components/Toast'
 import AddEditMedication from './components/modals/AddEditMedication'
 import AddEditPatient from './components/modals/AddEditPatient'
 import AddEditFiveFuPatient from './components/modals/AddEditFiveFuPatient'
+import BulkImportFiveFu from './components/modals/BulkImportFiveFu'
 import ConfirmDelete from './components/modals/ConfirmDelete'
 
 // ── Skeleton primitives ───────────────────────────────────────────────────────
@@ -103,6 +104,7 @@ function AppContent() {
 
       {/* 5-FU patient modals */}
       {(modalType === 'addFiveFuPatient' || modalType === 'editFiveFuPatient') && <AddEditFiveFuPatient />}
+      {modalType === 'bulkImportFiveFu' && <BulkImportFiveFu />}
 
       {/* Shared delete confirmation */}
       {(modalType === 'deleteMedication' || modalType === 'deletePatient' || modalType === 'deleteFiveFuPatient') && <ConfirmDelete />}

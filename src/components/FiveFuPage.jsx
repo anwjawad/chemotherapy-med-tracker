@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import {
   Search, X, Plus, Printer, Calendar, Syringe,
-  Users, Edit2, Trash2, CalendarDays, ChevronDown, ChevronUp,
+  Users, Edit2, Trash2, CalendarDays, ChevronDown, ChevronUp, Upload,
 } from 'lucide-react'
 import { useApp } from '../context/AppContext'
 import EmptyState from './EmptyState'
@@ -188,7 +188,23 @@ export default function FiveFuPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 shrink-0">
+          <div className="flex gap-2 shrink-0 flex-wrap">
+            <button
+              className="btn-primary bg-teal-600 hover:bg-teal-700"
+              onClick={() => dispatch({ type: 'OPEN_MODAL', modalType: 'addFiveFuPatient' })}
+              title="Add a single patient"
+            >
+              <Plus size={14} />
+              <span className="hidden sm:inline">Add Patient</span>
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={() => dispatch({ type: 'OPEN_MODAL', modalType: 'bulkImportFiveFu' })}
+              title="Bulk import patients from a list"
+            >
+              <Upload size={14} />
+              <span className="hidden sm:inline">Bulk Import</span>
+            </button>
             <button
               onClick={() => setShowMobileCal(c => !c)}
               className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl border shadow-sm lg:hidden ${

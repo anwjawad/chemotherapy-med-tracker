@@ -27,8 +27,6 @@ export default function AddEditFiveFuPatient() {
   const validate = () => {
     const e = {}
     if (!form.name.trim()) e.name = 'Patient name is required'
-    if (!form.fileNumber.trim()) e.fileNumber = 'File number is required'
-    if (!form.protocol.trim()) e.protocol = 'Protocol is required'
     if (!form.fiveFuDose.trim()) e.fiveFuDose = '5-FU dose is required'
     if (!form.appointmentDate) e.appointmentDate = 'Appointment date is required'
     setErrors(e)
@@ -110,7 +108,7 @@ export default function AddEditFiveFuPatient() {
 
         {/* File Number */}
         <div>
-          <label className="label">File Number <span className="text-red-500">*</span></label>
+          <label className="label">File Number <span className="text-slate-400 font-normal text-xs">(optional)</span></label>
           <input
             className={`input-field font-mono ${errors.fileNumber ? 'border-red-400 focus:ring-red-400' : ''}`}
             placeholder="e.g. 123456"
@@ -134,7 +132,7 @@ export default function AddEditFiveFuPatient() {
 
         {/* Protocol */}
         <div>
-          <label className="label">Protocol <span className="text-red-500">*</span></label>
+          <label className="label">Protocol <span className="text-slate-400 font-normal text-xs">(optional)</span></label>
           <input
             className={`input-field ${errors.protocol ? 'border-red-400 focus:ring-red-400' : ''}`}
             placeholder="e.g. FOLFOX4, mFOLFOX6, FOLFIRI"
