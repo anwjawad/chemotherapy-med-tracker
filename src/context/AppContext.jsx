@@ -208,6 +208,15 @@ export function AppProvider({ children }) {
   }, [])
 
   // ── 5-FU Patient CRUD (optimistic) ───────────────────────────────────────
+  const addFiveFuPatientsBulk = useCallback((dataList) => {
+    const patients = dataList.map(data => ({ ...data, id: generateId(), createdAt: now(), updatedAt: now() }))
+    patients.forEach(p => dispatch({ type: 'ADD_5FU_PATIENT', payload: p }))
+    dispatch({ type: 'CLOSE_MODAL' })
+    api.createFiveFuPatientsBulk(patients)
+      .then(() => showToast(`${patients.length} patients imported`))
+      .catch(err => showToast(`Bulk import failed: ${err.message}`, 'error'))
+  }, [showToast])
+
   const addFiveFuPatient = useCallback((data) => {
     const patient = { ...data, id: generateId(), createdAt: now(), updatedAt: now() }
     dispatch({ type: 'ADD_5FU_PATIENT', payload: patient })
@@ -234,7 +243,7 @@ export function AppProvider({ children }) {
     addMedication, updateMedication, deleteMedication,
     addPatient, updatePatient, deletePatient,
     returnToDelayed, navigateToPatient,
-    addFiveFuPatient, updateFiveFuPatient, deleteFiveFuPatient,
+    addFiveFuPatient, addFiveFuPatientsBulk, updateFiveFuPatient, deleteFiveFuPatient,
   }
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>

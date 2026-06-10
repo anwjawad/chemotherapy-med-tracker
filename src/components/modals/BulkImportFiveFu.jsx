@@ -22,7 +22,7 @@ function parseLine(line) {
 }
 
 export default function BulkImportFiveFu() {
-  const { dispatch, addFiveFuPatient } = useApp()
+  const { dispatch, addFiveFuPatientsBulk } = useApp()
 
   const [date,    setDate]    = useState('')
   const [rawText, setRawText] = useState('')
@@ -44,16 +44,13 @@ export default function BulkImportFiveFu() {
 
   const handleImport = () => {
     if (!validate()) return
-    rows.forEach(r => {
-      addFiveFuPatient({
-        name:            r.name,
-        fileNumber:      r.fileNumber,
-        protocol:        r.protocol,
-        fiveFuDose:      r.fiveFuDose,
-        appointmentDate: date,
-      })
-    })
-    dispatch({ type: 'CLOSE_MODAL' })
+    addFiveFuPatientsBulk(rows.map(r => ({
+      name:            r.name,
+      fileNumber:      r.fileNumber,
+      protocol:        r.protocol,
+      fiveFuDose:      r.fiveFuDose,
+      appointmentDate: date,
+    })))
   }
 
   return (

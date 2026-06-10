@@ -47,6 +47,12 @@ function mockUpdateFiveFuPatient(data) {
 function mockDeleteFiveFuPatient(id) {
   mockSet('fiveFuPatients', mockGet('fiveFuPatients').filter(p => p.id !== id)); return { id }
 }
+function mockCreateFiveFuPatientsBulk(patients) {
+  const list = mockGet('fiveFuPatients')
+  patients.forEach(p => list.push(p))
+  mockSet('fiveFuPatients', list)
+  return patients
+}
 
 // ── GAS fetch ──────────────────────────────────────────────────────────────
 async function callGAS(action, data = {}) {
@@ -99,3 +105,6 @@ export const updateFiveFuPatient = (data) =>
 
 export const deleteFiveFuPatient = (id) =>
   useMock() ? Promise.resolve(mockDeleteFiveFuPatient(id)) : callGAS('deleteFiveFuPatient', { id })
+
+export const createFiveFuPatientsBulk = (patients) =>
+  useMock() ? Promise.resolve(mockCreateFiveFuPatientsBulk(patients)) : callGAS('createFiveFuPatientsBulk', patients)

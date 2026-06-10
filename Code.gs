@@ -43,10 +43,11 @@ function doGet(e) {
       case 'createPatient':        result = createPatient(data);           break;
       case 'updatePatient':        result = updatePatient(data);           break;
       case 'deletePatient':        result = deletePatient(data.id);        break;
-      case 'listFiveFuPatients':   result = listFiveFuPatients();          break;
-      case 'createFiveFuPatient':  result = createFiveFuPatient(data);     break;
-      case 'updateFiveFuPatient':  result = updateFiveFuPatient(data);     break;
-      case 'deleteFiveFuPatient':  result = deleteFiveFuPatient(data.id);  break;
+      case 'listFiveFuPatients':        result = listFiveFuPatients();           break;
+      case 'createFiveFuPatient':       result = createFiveFuPatient(data);      break;
+      case 'createFiveFuPatientsBulk':  result = createFiveFuPatientsBulk(data); break;
+      case 'updateFiveFuPatient':       result = updateFiveFuPatient(data);      break;
+      case 'deleteFiveFuPatient':       result = deleteFiveFuPatient(data.id);   break;
       default: throw new Error('Unknown action: ' + action);
     }
 
@@ -194,6 +195,17 @@ function createFiveFuPatient(data) {
   var row   = FIVEFU_HEADERS.map(function(h) { return data[h] || ''; });
   sheet.appendRow(row);
   return data;
+}
+
+function createFiveFuPatientsBulk(patients) {
+  if (!patients || !patients.length) return [];
+  var sheet = getSheet(FIVEFU_SHEET, FIVEFU_HEADERS);
+  var rows  = patients.map(function(data) {
+    return FIVEFU_HEADERS.map(function(h) { return data[h] || ''; });
+  });
+  // Single setValues call — avoids concurrent-write race conditions from appendRow loops
+  sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, FIVEFU_HEADERS.length).setValues(rows);
+  return patients;
 }
 
 function updateFiveFuPatient(data) {
