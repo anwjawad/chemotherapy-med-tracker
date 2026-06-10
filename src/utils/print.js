@@ -22,6 +22,7 @@ const PRINT_STYLES = `
   .scheduled { background: #d1fae5; color: #065f46; }
   .days-badge { display: inline-block; padding: 2px 6px; border-radius: 20px; font-size: 10px; font-weight: 600; background: #fef3c7; color: #92400e; }
   .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+  .signature { margin-top: 10px; font-size: 9px; color: #cbd5e1; text-align: right; letter-spacing: 0.03em; }
   .count-badge { display: inline-block; padding: 2px 8px; background: #e0e7ff; color: #3730a3; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 8px; }
   .no-data { text-align: center; padding: 40px; color: #94a3b8; font-size: 13px; }
   @media print {
@@ -91,6 +92,7 @@ function printHTML(title, subtitle, patients, showMedication = false) {
     <span>Hospital Medication Availability Tracker</span>
     <span>Total: ${patients.length} patients — Generated: ${now}</span>
   </div>
+  <div class="signature">Produced by Jawad A. Sabha</div>
 </div>
 <script>window.onload=()=>{window.print();setTimeout(()=>window.close(),500)}</script>
 </body>

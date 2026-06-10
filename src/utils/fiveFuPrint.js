@@ -23,6 +23,7 @@ const PRINT_STYLES = `
   .date-group-inner { padding: 9px 12px; }
   .patient-count { background: rgba(255,255,255,0.25); padding: 1px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
   .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .signature { margin-top: 10px; font-size: 9px; color: #cbd5e1; text-align: right; letter-spacing: 0.03em; }
   .no-data { text-align: center; padding: 40px; color: #94a3b8; font-size: 13px; }
   @media print {
     body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
@@ -166,6 +167,7 @@ function openPrintWindow(title, dateInfo, patients, showDateCol) {
     <span>5-FU Treatment — Hospital Medication Availability Tracker</span>
     <span>Total: ${patients.length} patient${patients.length !== 1 ? 's' : ''} — Generated: ${printedAt}</span>
   </div>
+  <div class="signature">Produced by Jawad A. Sabha</div>
 </div>
 <script>window.onload = () => { window.print(); setTimeout(() => window.close(), 600) }</script>
 </body>
