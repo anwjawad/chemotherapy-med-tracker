@@ -16,8 +16,8 @@ function parseLine(line) {
   return {
     name:       parts[0] || '',
     fileNumber: parts[1] || '',
-    protocol:   parts[2] || '',
-    fiveFuDose: parts[3] || '',
+    fiveFuDose: parts[2] || '',
+    protocol:   parts[3] || '',
   }
 }
 
@@ -113,12 +113,12 @@ export default function BulkImportFiveFu() {
         <label className="label">
           Patient List <span className="text-red-500">*</span>
           <span className="text-xs font-normal text-slate-400 ml-2">
-            one per line · columns: name, file #, protocol, dose (tab or comma separated)
+            one per line · columns: name, file #, dose, protocol (tab or comma separated)
           </span>
         </label>
         <textarea
           className={`input-field font-mono text-sm resize-none h-44 ${errors.rawText ? 'border-red-400 focus:ring-red-400' : ''}`}
-          placeholder={"Ahmed Ali\nSara Mohammed\t123456\t\t2600 mg/m²\nKhalid Hassan, 78901, FOLFIRI, 2400 mg/m²"}
+          placeholder={"Ahmed Ali\nSara Mohammed\t123456\t2600 mg/m²\nKhalid Hassan, 78901, 2400 mg/m², FOLFIRI"}
           value={rawText}
           onChange={e => { setRawText(e.target.value); clearError('rawText') }}
           spellCheck={false}
