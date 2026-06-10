@@ -15,11 +15,9 @@ const TODAY = new Date().toISOString().split('T')[0]
 function formatDateLong(dateStr) {
   if (!dateStr) return '—'
   try {
-    const d = new Date(dateStr + 'T00:00:00')
-    if (isNaN(d.getTime())) return dateStr
-    return d.toLocaleDateString('en-GB', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    })
+    const [year, month, day] = dateStr.split('-')
+    if (!year || !month || !day) return dateStr
+    return `${parseInt(day)}/${parseInt(month)}/${year}`
   } catch {
     return dateStr
   }
