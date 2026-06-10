@@ -24,11 +24,9 @@ function parseLine(line) {
 export default function BulkImportFiveFu() {
   const { dispatch, addFiveFuPatient } = useApp()
 
-  const [date,            setDate]            = useState('')
-  const [defaultDose,     setDefaultDose]     = useState('')
-  const [defaultProtocol, setDefaultProtocol] = useState('')
-  const [rawText,         setRawText]         = useState('')
-  const [errors,          setErrors]          = useState({})
+  const [date,    setDate]    = useState('')
+  const [rawText, setRawText] = useState('')
+  const [errors,  setErrors]  = useState({})
 
   const rows = useMemo(() =>
     rawText.split('\n').map(parseLine).filter(r => r && r.name),
@@ -38,9 +36,8 @@ export default function BulkImportFiveFu() {
 
   const validate = () => {
     const e = {}
-    if (!date)               e.date    = 'Appointment date is required'
-    if (!defaultDose.trim()) e.dose    = '5-FU dose is required'
-    if (rows.length === 0)   e.rawText = 'Paste at least one patient name'
+    if (!date)             e.date    = 'Appointment date is required'
+    if (rows.length === 0) e.rawText = 'Paste at least one patient name'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -51,8 +48,8 @@ export default function BulkImportFiveFu() {
       addFiveFuPatient({
         name:            r.name,
         fileNumber:      r.fileNumber,
-        protocol:        r.protocol   || defaultProtocol,
-        fiveFuDose:      r.fiveFuDose || defaultDose,
+        protocol:        r.protocol,
+        fiveFuDose:      r.fiveFuDose,
         appointmentDate: date,
       })
     })
@@ -65,47 +62,19 @@ export default function BulkImportFiveFu() {
       onClose={() => dispatch({ type: 'CLOSE_MODAL' })}
       size="xl"
     >
-      {/* Batch settings */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
-        <div>
-          <label className="label">
-            Appointment Date <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            className={`input-field ${errors.date ? 'border-red-400 focus:ring-red-400' : ''}`}
-            value={date}
-            onChange={e => { setDate(e.target.value); clearError('date') }}
-            autoFocus
-          />
-          {errors.date && <p className="mt-1 text-xs text-red-600">{errors.date}</p>}
-        </div>
-
-        <div>
-          <label className="label">
-            5-FU Dose <span className="text-red-500">*</span>
-          </label>
-          <input
-            className={`input-field ${errors.dose ? 'border-red-400 focus:ring-red-400' : ''}`}
-            placeholder="e.g. 2400 mg/m²"
-            value={defaultDose}
-            onChange={e => { setDefaultDose(e.target.value); clearError('dose') }}
-          />
-          {errors.dose && <p className="mt-1 text-xs text-red-600">{errors.dose}</p>}
-        </div>
-
-        <div>
-          <label className="label">
-            Protocol
-            <span className="text-xs font-normal text-slate-400 ml-1">(optional)</span>
-          </label>
-          <input
-            className="input-field"
-            placeholder="e.g. FOLFOX4"
-            value={defaultProtocol}
-            onChange={e => setDefaultProtocol(e.target.value)}
-          />
-        </div>
+      {/* Appointment date */}
+      <div className="mb-5 max-w-xs">
+        <label className="label">
+          Appointment Date <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          className={`input-field ${errors.date ? 'border-red-400 focus:ring-red-400' : ''}`}
+          value={date}
+          onChange={e => { setDate(e.target.value); clearError('date') }}
+          autoFocus
+        />
+        {errors.date && <p className="mt-1 text-xs text-red-600">{errors.date}</p>}
       </div>
 
       {/* Paste area */}
@@ -160,10 +129,10 @@ export default function BulkImportFiveFu() {
                         {r.fileNumber || <span className="text-slate-300">—</span>}
                       </td>
                       <td className="px-3 py-2 text-xs text-slate-600">
-                        {r.protocol || defaultProtocol || <span className="text-slate-300">—</span>}
+                        {r.protocol || <span className="text-slate-300">—</span>}
                       </td>
                       <td className="px-3 py-2 text-xs text-slate-600">
-                        {r.fiveFuDose || defaultDose}
+                        {r.fiveFuDose || <span className="text-slate-300">—</span>}
                       </td>
                     </tr>
                   ))}
