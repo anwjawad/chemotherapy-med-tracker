@@ -88,7 +88,14 @@ function sheetToObjects(sheet, headers) {
     .map(function(row) {
       var obj = {};
       headers.forEach(function(h, i) {
-        obj[h] = row[i] !== null && row[i] !== undefined ? String(row[i]) : '';
+        var val = row[i];
+        // Sheets auto-converts date-formatted cells to Date objects.
+        // Format them back as YYYY-MM-DD so the frontend can parse them.
+        if (val instanceof Date) {
+          obj[h] = Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        } else {
+          obj[h] = val !== null && val !== undefined ? String(val) : '';
+        }
       });
       return obj;
     });

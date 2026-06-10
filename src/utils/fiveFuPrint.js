@@ -33,7 +33,9 @@ const PRINT_STYLES = `
 function formatDateFull(dateStr) {
   if (!dateStr || dateStr === '—') return '—'
   try {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', {
+    const d = new Date(dateStr + 'T00:00:00')
+    if (isNaN(d.getTime())) return dateStr
+    return d.toLocaleDateString('en-GB', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     })
   } catch {
@@ -44,7 +46,9 @@ function formatDateFull(dateStr) {
 function formatDateShort(dateStr) {
   if (!dateStr) return '—'
   try {
-    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', {
+    const d = new Date(dateStr + 'T00:00:00')
+    if (isNaN(d.getTime())) return dateStr
+    return d.toLocaleDateString('en-GB', {
       year: 'numeric', month: 'short', day: 'numeric',
     })
   } catch {
